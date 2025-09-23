@@ -31,11 +31,13 @@ def main():
     except Exception as e:
         print("Warning: could not ensure Space with Streamlit SDK (continuing):", e)
 
-    # Upload files needed for the app: app.py, requirements.txt, src/
+    # Upload files needed for the app: app.py, requirements.txt, src/, Dockerfile
     files_to_upload = [
         ("app.py", "app.py"),
         ("requirements.txt", "requirements.txt"),
     ]
+    if os.path.exists("Dockerfile"):
+        files_to_upload.append(("Dockerfile", "Dockerfile"))
 
     # Walk src directory
     for root, _, files in os.walk("src"):
