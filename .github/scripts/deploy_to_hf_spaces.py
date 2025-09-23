@@ -22,19 +22,14 @@ def main():
         print("Authentication failed:", e)
         sys.exit(1)
 
-    # Ensure repo exists as a Space; try to set SDK if available
+    # Ensure repo exists as a Space; always request Streamlit SDK, but don't fail hard
     try:
         if SpaceSdk is not None:
             create_repo(space_id, repo_type="space", exist_ok=True, space_sdk=SpaceSdk.STREAMLIT)
         else:
-            # Fallback for older hubs: attempt with string; if it fails, create without sdk
-            try:
-                create_repo(space_id, repo_type="space", exist_ok=True, space_sdk="streamlit")
-            except Exception:
-                create_repo(space_id, repo_type="space", exist_ok=True)
+            create_repo(space_id, repo_type="space", exist_ok=True, space_sdk="streamlit")
     except Exception as e:
-        print("Warning: could not set Space SDK to streamlit (continuing):", e)
-        create_repo(space_id, repo_type="space", exist_ok=True)
+        print("Warning: could not ensure Space with Streamlit SDK (continuing):", e)
 
     # Upload files needed for the app: app.py, requirements.txt, src/
     files_to_upload = [
