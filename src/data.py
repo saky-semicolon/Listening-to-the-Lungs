@@ -12,6 +12,9 @@ class CFG:
     test_size = 0.15
     val_size = 0.15
     seed = 42
+    # training defaults
+    epochs = 10
+    early_stop_pat = 6
 
 def prepare_splits(df_all):
     df_trainval, df_test = train_test_split(

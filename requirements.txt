@@ -7,4 +7,4 @@ matplotlib
 seaborn
 tensorflow==2.15.0
 shap
-pytest
+streamlit

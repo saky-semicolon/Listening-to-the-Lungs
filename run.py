@@ -41,7 +41,8 @@ def xai_demo(args):
     (X_mel, X_hand), y = make_dummy_dataset(batch_size=4, time_steps=64, hand_dim=70, num_classes=len(CFG.classes))
     model = build_model(hand_dim=70, num_classes=len(CFG.classes))
     preds = model.predict([X_mel, X_hand])
-    cams = grad_cam(model, X_mel, X_hand)
+    gc_out = grad_cam(model, X_mel, X_hand)
+    cams = gc_out[0] if isinstance(gc_out, tuple) else gc_out
     print("Produced CAMs shape:", cams.shape)
     # Save one CAM + mel image
     import matplotlib.pyplot as plt

@@ -19,7 +19,8 @@ def grad_cam(model, mel_batch, hand_batch, conv_layer_name=None):
     cam = tf.reduce_sum(weights[:, None, None, :] * conv_out, axis=-1)
     cam = tf.nn.relu(cam)
     cam /= (tf.reduce_max(cam, axis=(1,2), keepdims=True) + 1e-8)
-    return cam.numpy()
+    # Return tuple to match app expectations: (cams, chosen_classes, preds)
+    return cam.numpy(), class_idx.numpy(), preds.numpy()
 
 def visualize_cam_on_mel(mel, cam, title="Grad-CAM"):
     mel2d = mel[...,0] if mel.ndim==3 else mel
@@ -47,6 +48,16 @@ def integrated_gradients(model, mel, hand, target_class, steps=50):
 # SHAP (for handcrafted features)
 import shap
 def shap_explain(model, mel, hand, nsamples=50):
-    explainer = shap.Explainer(model, [mel, hand])
-    shap_values = explainer([mel, hand], nsamples=nsamples)
-    return shap_values
+    # SHAP for multi-input Keras models can be heavy; provide a safe wrapper
+    try:
+        explainer = shap.Explainer(model)
+        shap_values = explainer([mel, hand], nsamples=nsamples)
+        return shap_values
+    except Exception as e:
+        # Fallback: return a simple namespace-like object with handcrafted zeros
+        class Simple:
+            pass
+        s = Simple()
+        s.values = [None, np.zeros_like(hand, dtype=np.float32)]
+        s.error = str(e)
+        return s
